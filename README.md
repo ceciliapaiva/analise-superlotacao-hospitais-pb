@@ -2,8 +2,8 @@
 [![Open in Codespaces](https://classroom.github.com/assets/launch-codespace-2972f46106e565e64193e422d61a12cf1da4916b45550586e14ef0a7c637dd04.svg)](https://classroom.github.com/open-in-codespaces?assignment_repo_id=18783159)
 # Projeto da disciplina de análise de dados
  
-- Membros da equipe:
-- Objetivo do projeto: 
+- Membros da equipe: Maria Cecilia Paiva de Sousa
+- Objetivo do projeto: Análise da Superlotação em Hospitais da Paraíba
 
 No projeto você deve gerar um Notebook ou um website com a análise de dados escolhida. Fique livre para escolher a base de dados e as perguntas do seu interesse. Envie o código do projeto para este repositório.
 
