@@ -6,6 +6,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
+import gdown
 
 st.set_page_config(page_title='Análise de Superlotação em Hospitais da Paraíba', layout='wide')
 st.title('Análise de Superlotação em Hospitais da Paraíba – Hospitais da Paraíba (Jan–Nov 2024)')
@@ -29,7 +30,8 @@ st.divider()
 # ### Hospital e Leito
 # Fonte: OpenDataSUS
 
-hospital_e_leitos_br = pd.read_csv("https://drive.google.com/uc?id=1LRPmb12Et55FEBwi8eL2NgX0s4JQvJ5d", encoding='ISO-8859-1')
+url_hospital_e_leitos_br = "https://drive.google.com/uc?id=1LRPmb12Et55FEBwi8eL2NgX0s4JQvJ5d"
+hospital_e_leitos_br = pd.read_csv(url_hospital_e_leitos_br, encoding='ISO-8859-1')
 
 # Limpeza de dados
 hospital_e_leitos_pb = hospital_e_leitos_br[(hospital_e_leitos_br['UF'] == 'PB')]
@@ -59,7 +61,17 @@ hospital_e_leitos_pb['TIPO_GESTAO'] = hospital_e_leitos_pb['TIPO_GESTAO'].replac
 
 
 # Dicionário de Variáveis (https://pcdas.icict.fiocruz.br/conjunto-de-dados/sistema-de-informacoes-hospitalares-do-sus-sihsus/dicionario-de-variaveis/)
-sih_pb_2024 = pd.read_csv('https://drive.google.com/uc?id=1EhOmaJoCLpzDT9HCEY2XmqVnH3KFckVV')
+# Utilizando gdown para baixar do Google Drive o arquivo CSV com mais de 100MB 
+file_id = "1EhOmaJoCLpzDT9HCEY2XmqVnH3KFckVV"
+url_sih_pb_2024 = f"https://drive.google.com/uc?id={file_id}"
+
+# Caminho para salvar localmente no Streamlit Cloud
+output = 'sih_pb_2024.csv'
+
+# Baixando o arquivo CSV
+with st.spinner("Carregando dados do SIH/SUS..."):
+    gdown.download(url_sih_pb_2024, output, quiet=False)
+    sih_pb_2024 = pd.read_csv(output)
 
 # Limpeza de dados
 sih_pb_2024 = sih_pb_2024.drop(['UF_ZI', 'CGC_HOSP', 'N_AIH', 'IDENT', 'CEP', 'MUNIC_RES', 'NASC', 'SEXO',
