@@ -1,4 +1,4 @@
-# Análise de Superlotação em Hospitais da Paraíba – Hospitais da Paraíba (Jan–Nov 2024)
+# Análise de Superlotação em Hospitais da Paraíba – (Jan–Nov 2024)
 
 Este projeto tem como objetivo analisar a superlotação em hospitais do Estado da Paraíba no período de janeiro a novembro de 2024, utilizando dados públicos e ferramentas de análise de dados. A análise abrange aspectos como a taxa de ocupação de leitos SUS, a taxa de óbitos e a distribuição de hospitais especializados e gerais. O objetivo é gerar insights sobre as características que levam à superlotação em um hospital, bem como identificar regiões que demandam soluções mais eficientes. Desenvolvido para pôr em prática os conhecimentos adquiridos na disciplina de análise de dados.
 

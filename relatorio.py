@@ -6,22 +6,22 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
-import gdown
 
 st.set_page_config(page_title='Análise de Superlotação em Hospitais da Paraíba', layout='wide')
-st.title('Análise de Superlotação em Hospitais da Paraíba – Hospitais da Paraíba (Jan–Nov 2024)')
+st.title('Análise de Superlotação em Hospitais da Paraíba')
 st.markdown('''
-    Este relatório apresenta uma análise da superlotação em hospitais da Paraíba, com foco na taxa de ocupação dos leitos do SUS, 
-    média de permanência dos pacientes e taxa de óbitos. Os dados foram obtidos do OpenDataSUS e PySUS.
+            Este projeto tem como objetivo analisar a superlotação em hospitais do Estado da Paraíba no período de janeiro a novembro de 2024, utilizando dados públicos e ferramentas de análise de dados. 
+            A análise abrange aspectos como a taxa de ocupação de leitos SUS, a taxa de óbitos e a distribuição de hospitais especializados e gerais. O objetivo é gerar insights sobre as características
+             que levam à superlotação em um hospital, bem como identificar regiões que demandam soluções mais eficientes. Desenvolvido para pôr em prática os conhecimentos adquiridos na disciplina de análise de dados.
 ''')
 st.caption('Por: [Cecília Paiva](https://www.linkedin.com/in/ceciliapaiva/)')
 st.divider()
 
-st.subheader("Base de Dados Utilizadas")
+st.header("Bases de Dados Utilizadas")
 st.markdown('''
             Os dados utilizados neste projeto foram obtidos de fontes públicas:
-            - Hospitais e Leitos | Fonte:[OpenDataSUS](https://opendatasus.saude.gov.br/dataset/hospitais-e-leitos)
-            - Sistema de Informações Hospitalares do SUS (SIH/SUS) | Fonte:[PySUS](https://pysus.readthedocs.io/en/latest/databases/data-sources.html#about-sih)
+            - Hospitais e Leitos | Fonte: [OpenDataSUS](https://opendatasus.saude.gov.br/dataset/hospitais-e-leitos)
+            - Sistema de Informações Hospitalares do SUS (SIH/SUS) | Fonte: [PySUS](https://pysus.readthedocs.io/en/latest/databases/data-sources.html#about-sih)
 ''')
 st.divider()
 
@@ -61,17 +61,11 @@ hospital_e_leitos_pb['TIPO_GESTAO'] = hospital_e_leitos_pb['TIPO_GESTAO'].replac
 
 
 # Dicionário de Variáveis (https://pcdas.icict.fiocruz.br/conjunto-de-dados/sistema-de-informacoes-hospitalares-do-sus-sihsus/dicionario-de-variaveis/)
-# Utilizando gdown para baixar do Google Drive o arquivo CSV com mais de 100MB 
-file_id = "1EhOmaJoCLpzDT9HCEY2XmqVnH3KFckVV"
-url_sih_pb_2024 = f"https://drive.google.com/uc?id={file_id}"
 
-# Caminho para salvar localmente no Streamlit Cloud
-output = 'sih_pb_2024.csv'
+url_sih_pb_2024 = f"https://www.dropbox.com/scl/fi/6pbph1llgydgsbhwi054x/dados_sih_pb_2024.csv?rlkey=ke7suvsvakniipj0hszb85xyk&st=qgipi74x&dl=1"
 
 # Baixando o arquivo CSV
-with st.spinner("Carregando dados do SIH/SUS..."):
-    gdown.download(url_sih_pb_2024, output, quiet=False)
-    sih_pb_2024 = pd.read_csv(output)
+sih_pb_2024 = pd.read_csv(url_sih_pb_2024)
 
 # Limpeza de dados
 sih_pb_2024 = sih_pb_2024.drop(['UF_ZI', 'CGC_HOSP', 'N_AIH', 'IDENT', 'CEP', 'MUNIC_RES', 'NASC', 'SEXO',
@@ -89,6 +83,7 @@ sih_pb_2024 = sih_pb_2024.drop(['UF_ZI', 'CGC_HOSP', 'N_AIH', 'IDENT', 'CEP', 'M
                                 'VAL_SP_FED', 'VAL_SH_GES', 'VAL_SP_GES', 'VAL_UCI', 'MARCA_UCI', 'DIAGSEC1', 'DIAGSEC2', 'DIAGSEC3', 'DIAGSEC4', 'DIAGSEC5',
                                 'TPDISEC2', 'TPDISEC3', 'MARCA_UTI'], axis=1)
 
+
 sih_pb_2024 = sih_pb_2024.rename(columns={
     'ESPEC': 'especialidade_leito',
     'PROC_REA': 'procedimento_realizado',
@@ -105,8 +100,18 @@ sih_pb_2024 = sih_pb_2024.rename(columns={
 sih_pb_2024 = sih_pb_2024[sih_pb_2024['MES_CMPT'] <= 11]
 
 
-st.subheader("Percentual de Ocupacão Diária dos Leitos")
-st.markdown('Os dados são de janeiro a novembro de 2024')
+st.header("Indicadores")
+st.subheader("Taxa de Ocupação dos Leitos SUS")
+st.markdown('''
+            Este indicador representa a eficiencia dos hospitais com leitos SUS.
+            > `Taxa de Ocupação = (Leitos Ocupados / Total de Leitos SUS) * 100`
+''')
+st.subheader("Média de Ocupação Diária")
+st.markdown('''
+            Este indicador representa a demanda dos hospitais com leitos SUS.
+            > `Média de Ocupação = Média de Entradas Diárias * Média dos Dias de Permanência`
+''')
+st.divider()
 
 # In[3]:
 
@@ -145,10 +150,10 @@ df_ocupacao_diaria['leitos_ocupados'] = df_ocupacao_diaria.groupby(['id_cnes'])[
 df_ocupacao_diaria['taxa_ocupacao_diaria_pct'] = (df_ocupacao_diaria['leitos_ocupados'] / df_ocupacao_diaria['total_leitos_sus']) * 100
 df_ocupacao_diaria['taxa_ocupacao_diaria_pct'] = df_ocupacao_diaria['taxa_ocupacao_diaria_pct'].round(2)
 
-st.dataframe(df_ocupacao_diaria)
-
 # Exibindo gráficos
 # ==================================================================================
+st.header("Distribuição Temporal")
+
 fig1, ax1 = plt.subplots(figsize=(10, 6))
 sns.lineplot(
     data=df_ocupacao_diaria,
@@ -165,7 +170,7 @@ ax1.grid(True)
 ax1.tick_params(axis='x', rotation=45)
 ax1.legend(loc='upper left', bbox_to_anchor=(1, 1))
 
-st.subheader("Taxa de Ocupação Diária dos Leitos SUS na Paraíba")
+st.subheader("Taxa de Ocupação dos Leitos SUS na Paraíba")
 st.pyplot(fig1)
 
 # ==================================================================================
@@ -213,8 +218,8 @@ st.divider()
 # In[4]:
 
 # ### Média de Ocupacão Hospitalar
-st.subheader("Média de Ocupacão Hospitalar")
-st.markdown('''Vamos entender a demanda dos hospitais localizados no Estado da Paraíba.
+st.header("Média de Ocupacão Diária")
+st.markdown('''Vamos entender a demanda dos hospitais localizados no estado da Paraíba.
             ''')
 
 entrada_stats = df_ocupacao_diaria.groupby(['id_cnes'])['qtd_entradas'].mean(numeric_only=True).round(2)
@@ -247,9 +252,6 @@ df_stats['tipo_unidade'] = hospital_e_leitos_pb.groupby(['ID_CNES'])['DS_TIPO_UN
 df_stats['nome_hospital'] = hospital_e_leitos_pb.groupby(['ID_CNES'])['NOME_ESTABELECIMENTO'].first()
 df_stats['municipio'] = hospital_e_leitos_pb.groupby(['ID_CNES'])['MUNICIPIO'].first()
 
-# Exibindo as Data Frame df_stats
-st.dataframe(df_stats)
-
 # distribuição geral da média de ocupação em 2024
 fig4, ax4 = plt.subplots(figsize=(10, 6))
 sns.histplot(
@@ -258,11 +260,11 @@ sns.histplot(
     kde=True,
     ax=ax4
 )
-ax4.set_title('Distribuição da Ocupação Média Diária')
+ax4.set_title('Distribuição da Média de Ocupação Diária')
 ax4.set_xlabel('Média de Ocupação Diária')
 ax4.grid(True)
 
-st.subheader("Distribuição da Ocupação Média Diária na Paraíba")
+st.subheader("Distribuição da Média de Ocupação Diária na Paraíba")
 st.pyplot(fig4)
 
 # ### Média de Ocupação Hospitalar
@@ -285,7 +287,7 @@ ax5.set_xlabel('Tipo de Unidade')
 ax5.grid(True)
 ax5.legend(loc='upper left', bbox_to_anchor=(1, 1))
 
-st.subheader("Distribuição da Ocupação Diária por Tipo de Unidade na Paraíba")
+st.subheader("Distribuição da Ocupação Diária por Tipo de Unidade")
 st.pyplot(fig5)
 
 # ==================================================================================
@@ -300,11 +302,11 @@ contagem_tipos.plot(
     grid=True,
     ax=ax6
 )
-ax6.set_title('Tipos de Unidade com SUS na Paraíba')
+ax6.set_title('Distribuição de Unidades com Leitos SUS na Paraíba')
 ax6.set_ylabel('Quantidade de Unidades')
 ax6.set_xlabel('Tipo de Unidade')
 
-st.subheader("Tipos de Unidade com SUS na Paraíba")
+st.subheader("Distribuição de Unidades com Leitos SUS na Paraíba")
 st.pyplot(fig6)
 
 
@@ -385,13 +387,16 @@ def medidas_variabilidade(df, coluna):
     st.subheader("Outliers:")
     st.table(outliers[['municipio', coluna, 'tipo_unidade']])
 
-    st.markdown("**📋 Resumo Estatístico:**")
+    st.subheader("📋 Resumo Estatístico:")
     st.table(df[coluna].describe().round(2))
 
 medidas_variabilidade(df_stats, 'ocupacao_media_diaria')
 st.subheader("Top 6 Hospitais Mais Ocupados")
 st.table(top_6_hospitais[['nome_hospital', 'municipio', 'ocupacao_media_diaria']].sort_values(by='ocupacao_media_diaria', ascending=False))
-st.markdown('No contexto do Estado da Paraíba, as maiores médias de ocupação diária se encontra em unidades do tipo: hospital geral e hospital especializado (Hospitais que possuem leitos do SUS). Sendo os hospitais especializados os mais afetados, porém, são os que tem menos distribuição no Estado. Foi encontrado 6 dados extremos, provenientes de hospitais localizados em regiões metropolitanas da Paraíba, e esses outliers são os top 6 hospitais com as maiores médias de ocupação diária em 2024.')
+
+st.subheader("Conclusões preliminares")
+st.markdown('No contexto do estado da Paraíba, as maiores médias de ocupação diária se encontra em unidades do tipo: hospital geral e hospital especializado (Hospitais que possuem leitos do SUS). Sendo os hospitais especializados os mais afetados, porém, são os que tem menos distribuição no Estado. Foi encontrado 6 dados extremos, provenientes de hospitais localizados em regiões metropolitanas da Paraíba, e esses outliers são os top 6 hospitais com as maiores médias de ocupação diária em 2024.')
+st.divider()
 
 # No contexto do Estado da Paraíba, as maiores médias de ocupação diária se encontra em unidades do tipo: hospital geral e hospital especializado (Hospitais que possuem leitos do SUS). Sendo os hospitais especializados os mais afetados, porém, são os que tem menos distribuição no Estado. Foi encontrado 6 dados extremos, provenientes de hospitais localizados em regiões metropolitanas da Paraíba, e esses outliers são os top 6 hospitais com as maiores médias de ocupação diária em 2024.
 
@@ -399,8 +404,8 @@ st.markdown('No contexto do Estado da Paraíba, as maiores médias de ocupação
 
 # In[7]:
 
-st.divider()
-st.subheader("CIDs Principais Mais Frequentes nos 10 Hospitais Mais Ocupados")
+st.header("CIDs Principais Mais Frequentes")
+st.markdown('CID é um código da Classificação Internacional de Doenças (CID) que identifica a condição de saúde pela qual o paciente foi internado. Veremos as CIDs principais mais frequetes nos 10 hospitais mais ocupados da Paraíba.')
 
 top_10_ocupacao = df_stats.nlargest(10, 'ocupacao_media_diaria')
 cids_frequentes = sih_pb_2024[sih_pb_2024['id_cnes'].isin(top_10_ocupacao.index)]
@@ -429,7 +434,6 @@ cids_freq_hospitais['cid_principal'] = cids_freq_hospitais['cid_principal'].repl
     'F192': 'Síndrome de dependência'
 })
 
-st.table(cids_freq_hospitais)
 
 fig9, ax9 = plt.subplots(figsize=(10, 6))
 sns.barplot(
@@ -444,7 +448,6 @@ ax9.set_title('Frequência de CIDs por Hospital')
 ax9.set_xlabel('Nome do Hospital')
 ax9.set_ylabel('Quantidade de CIDs Frequentes')
 ax9.tick_params(axis='x', rotation=90)
-ax9.grid(True)
 ax9.legend(
     title='CID Principal',
     bbox_to_anchor=(1.05, 1),
@@ -452,49 +455,46 @@ ax9.legend(
     borderaxespad=0.)
 st.pyplot(fig9)
 
+st.table(cids_freq_hospitais)
 
+
+st.subheader("Conclusões Preliminares")
+st.markdown('Cada hospital tem suas especialidades de referência e diferentes tipos de leitos disponibilizados.')
+st.divider()
 # ### Taxa de Ocupacão de Leitos SUS
 # Vamos ententer a eficiência hospitalar de janeiro a novembro de 2024.
 
 # In[8]:
 
-st.subheader("Taxa de Ocupação de Leitos SUS")
+st.header("Taxa de Ocupação de Leitos SUS")
 st.markdown('Vamos ententer a eficiência hospitalar de janeiro a novembro de 2024.')
 
-# leitos_sus_mean
-medidas_centralidade(df_stats, 'leitos_sus_mean')
-medidas_variabilidade(df_stats, 'leitos_sus_mean')
-fig10, ax10 = plt.subplots(figsize=(10, 6))
-sns.histplot(data=df_stats, x='leitos_sus_mean', kde=True, ax=ax10)
-ax10.set_title('Distribuição da Média de Leitos SUS na Paraíba')
-ax10.set_xlabel('Média de Leitos SUS')
-st.subheader("Distribuição da Média de Leitos SUS na Paraíba")
-st.pyplot(fig10)
-
-st.divider()
-
 # taxa_ocupacao_mean_pct
-print("\n")
-medidas_centralidade(df_stats, 'taxa_ocupacao_mean_pct')
-medidas_variabilidade(df_stats, 'taxa_ocupacao_mean_pct')
 fig11, ax11 = plt.subplots(figsize=(10, 6))
 sns.histplot(data=df_stats, x='taxa_ocupacao_mean_pct', kde=True, ax=ax11)
-ax11.set_title('Distribuição da Taxa de Ocupação Média dos Leitos SUS na Paraíba')
+ax11.set_title('Distribuição da Taxa de Ocupação Média dos Leitos SUS')
 ax11.set_xlabel('Taxa de Ocupação Média (%)')
 st.subheader("Distribuição da Taxa de Ocupação Média dos Leitos SUS na Paraíba")
 st.pyplot(fig11)
+medidas_centralidade(df_stats, 'taxa_ocupacao_mean_pct')
+medidas_variabilidade(df_stats, 'taxa_ocupacao_mean_pct')
 
 st.subheader('Top 10 Hospitais Mais Lotados')
 top_10_lotados = df_stats.nlargest(10, 'taxa_ocupacao_mean_pct').sort_values(by='taxa_ocupacao_mean_pct', ascending=False)
 st.table(top_10_lotados)
-st.divider()
 
+st.subheader("Conclusões Preliminares")
+st.markdown('No geral, a taxa de ocupação é equilibrada, porém, com uma exceção para um hospital especializado que atingiu a média máxima da taxa de ocupação.')
+
+st.divider()
 
 # ### Qual a relação entre os Leitos do SUS e Taxa de Ocupacão?
 
 # In[9]:
 
-st.subheader("Relação entre os Leitos do SUS e a Taxa de Ocupação")  
+st.header("Análises de Correlação")
+
+st.subheader("Relação entre a Taxa de Ocupação e Leitos SUS")
 
 fig12, ax12 = plt.subplots(figsize=(10, 6))
 sns.scatterplot(data=df_stats, x='taxa_ocupacao_mean_pct', y='leitos_sus_mean', hue='tipo_unidade', palette='bright', ax=ax12)
@@ -508,13 +508,18 @@ corr_pearson = df_stats['leitos_sus_mean'].corr(df_stats['taxa_ocupacao_mean_pct
 corr_spearman = df_stats['leitos_sus_mean'].corr(df_stats['taxa_ocupacao_mean_pct'], method='spearman')
 corr_kendall = df_stats['leitos_sus_mean'].corr(df_stats['taxa_ocupacao_mean_pct'], method='kendall')
 
-st.markdown(f"(Leitos SUS com Taxa de Ocupação)\n**Correlação de Pearson:** {corr_pearson:.2f}\n**Correlação de Spearman:** {corr_spearman:.2f}\n**Correlação de Kendall:** {corr_kendall:.2f}")
+st.markdown(f"""
+### Correlação entre a Média de Leitos SUS e a Taxa de Ocupação
+
+- Correlação de Pearson: `{corr_pearson:.2f}`  
+- Correlação de Spearman: `{corr_spearman:.2f}`  
+- Correlação de Kendall: `{corr_kendall:.2f}`
+""")
+
 st.markdown('''A média de leitos do SUS apresenta uma relação moderada com a taxa de ocupação desses leitos em hospitais da Paraíba, 
             conforme demonstrado pelas correlações de Spearman (0,66) e Kendall (0,45). 
             Isso indica que, em geral, quanto maior for a média de leitos SUS disponibilizados por um hospital, 
             maior tende a ser sua taxa de ocupação.''')
-
-# A média de leitos do SUS apresenta uma relação moderada com a taxa de ocupação desses leitos em hospitais da Paraíba, conforme demonstrado pelas correlações de Spearman (0,66) e Kendall (0,45). Isso indica que, em geral, quanto maior for a média de leitos SUS disponibilizados por um hospital, maior tende a ser sua taxa de ocupação.
 
 # ### Qual a relacão entre a Média de Óbitos e a Taxa de Ocupacao dos Leitos?
 
@@ -524,7 +529,7 @@ st.subheader("Relação entre Média de Óbitos e Taxa de Ocupação")
 
 fig13, ax13 = plt.subplots(figsize=(10, 6))
 sns.scatterplot(data=df_stats, x='taxa_ocupacao_mean_pct', y='obitos_mean', hue='tipo_unidade', palette='bright', ax=ax13)
-ax13.set_title('Relação entre Óbitos e Taxa de Ocupacão Diária')
+ax13.set_title('Relação entre Óbitos e Taxa de Ocupacão')
 ax13.set_ylabel('Média de Óbitos (%)')
 ax13.set_xlabel('Taxa de Ocupação (%)')
 ax13.legend(loc='upper left', bbox_to_anchor=(1, 1))
@@ -534,18 +539,36 @@ st.pyplot(fig13)
 corr_pearson = df_stats['obitos_mean'].corr(df_stats['taxa_ocupacao_mean_pct'], method='pearson')
 corr_spearman = df_stats['obitos_mean'].corr(df_stats['taxa_ocupacao_mean_pct'], method='spearman')
 corr_kendall = df_stats['obitos_mean'].corr(df_stats['taxa_ocupacao_mean_pct'], method='kendall')
-st.markdown(f"(Média de Óbitos com Taxa Ocupacão)\n**Correlação de Pearson:** {corr_pearson:.2f}\n**Correlação de Spearman:** {corr_spearman:.2f}\n**Correlação de Kendall:** {corr_kendall:.2f}")
+st.markdown(f"""
+### Correlação entre a Média de Óbitos e a Taxa Ocupacão
+            
+- Correlação de Pearson: `{corr_pearson:.2f}`  
+- Correlação de Spearman: `{corr_spearman:.2f}`  
+- Correlação de Kendall: `{corr_kendall:.2f}`
+""")
+
+st.markdown('''A média de óbitos apresenta uma relação muito fraca ou quase inexistente com a taxa de ocupação dos leitos SUS.
+            Isso indica que, em geral, a taxa de ocupação dos leitos não está diretamente relacionada à média de óbitos nos hospitais da Paraíba,
+            sugerindo que outros fatores influenciam a mortalidade hospitalar.
+            ''')
+
+
+st.subheader("Conclusões Preliminares")
+st.markdown('''
+            - Quanto mais leitos SUS, maior será a taxa de ocupação em hospitais gerais e especializados.
+            - A taxa de ocupação tem influencia fraca na taxa de óbitos, com algumas exceções.
+            ''')
+
+st.divider()
 
 # ### Análise de Regressão Linear
 # Leitos SUS e Taxa de Ocupacao dos Leitos
 
 # In[11]:
 
-st.divider()
-st.subheader("Análise de Regressão Linear")
+st.header("Análise de Regressão Linear")
 
-st.divider()
-st.markdown("Leitos SUS e Taxa de Ocupação dos Leitos")
+st.subheader("Prevendo a Taxa de Ocupação com Base na Média de Leitos SUS")
 
 import sklearn.model_selection as ms
 import sklearn.linear_model as lm
@@ -583,10 +606,12 @@ ax15.set_ylabel('Taxa de Ocupação Média (%)')
 st.pyplot(fig15)
 
 # Valor especificado
-valor_especificado = 260
-st.markdown(f"Prevendo a taxa de ocupação média para uma média de {valor_especificado} leitos SUS: {regressor.predict([[valor_especificado]])[0].round(2)}")
-st.markdown(f"b0 (intercept): {regressor.intercept_.round(2)}")
-st.markdown(f"b1 (coefficient): {regressor.coef_[0].round(2)}")
+valor_especificado = pd.DataFrame({'leitos_sus_mean': [260]}) 
+predito = regressor.predict(valor_especificado)[0].round(2)
+
+st.write(f"Prevendo a taxa de ocupação média para uma média de {valor_especificado.iloc[0,0]} leitos SUS: `{predito}%`")
+st.write(f"b0 (intercept): `{regressor.intercept_.round(2)}`")
+st.write(f"b1 (coefficient): `{regressor.coef_[0].round(2)}`")
 
 # Erro residual
 fitted = regressor.predict(df_stats[['leitos_sus_mean']])	
@@ -603,11 +628,14 @@ st.pyplot(fig16)
 # Avaliando o modelo
 RMSE = np.sqrt(mean_squared_error(y, fitted))
 r2 = r2_score(y, fitted)
-st.markdown(f'===========Avaliando o Modelo===========\nRoot Mean Square Error (RMSE): {RMSE:.2f}')
-st.markdown(f'Coefficiente of determination (r2): {r2:.4f}')
+st.markdown(f'''### Avaliando o Modelo
+            - Root Mean Square Error (RMSE): `{RMSE:.2f}`
+            - Coefficiente of determination (r2): `{r2:.4f}`
+            (Poder explicativo moderado)
+''')
 
-st.subheader("Regressão Linear Múltipla")
-st.markdown("Vamos fazer um regressão linear múltipla considerando os tipos de unidades, taxa de óbitos e média de ocupacao diária.")
+st.header("Regressão Linear Múltipla")
+st.markdown("Vamos fazer uma regressão linear múltipla considerando os tipos de unidades, taxa de óbitos e média de ocupação diária.")
 
 # In[12]:
 
@@ -627,10 +655,10 @@ regressor_multiple = lm.LinearRegression()
 regressor_multiple.fit(x_train, y_train)
 
 # Coeficientes
-st.markdown(f'Intercept: {regressor_multiple.intercept_.round(3)}')
-st.markdown('Coefficients:')
+st.markdown(f'Intercept: `{regressor_multiple.intercept_.round(3)}`')
+st.markdown('Coefficientes:')
 for name, coef in zip(x_dummies.columns, regressor_multiple.coef_.flatten()):
-    st.markdown(f' {name}: {coef:.3f}')
+    st.markdown(f' {name}: `{coef:.3f}`')
 
 # Previsão
 y_pred = regressor_multiple.predict(x_test)
@@ -639,9 +667,11 @@ y_pred = regressor_multiple.predict(x_test)
 fitted = regressor_multiple.predict(x_dummies)
 RMSE = np.sqrt(mean_squared_error(y, fitted))
 r2 = r2_score(y, fitted)
-st.markdown(f'''===========Avaliando o Modelo===========
-            Root Mean Square Error (RMSE): {RMSE:.2f}''')
-st.markdown(f'Coefficiente of determination (r2): {r2:.4f}')
+st.markdown(f'''### Avaliando o Modelo
+            - Root Mean Square Error (RMSE): `{RMSE:.2f}`
+            - Coefficiente of determination (r2): `{r2:.4f}``
+
+            ''')
 
 # Calcular os resíduos
 residuals = y - fitted
@@ -657,10 +687,10 @@ st.pyplot(fig17)
 
 # ### Regressão Logística
 # Sem 'MUNICIPIO' como variável preditora.
-st.subheader("Regressão Logística sem Município")
+st.header("Regressão Logística")
+
+st.subheader("Sem 'MUNICIPIO' como variável preditora.")
 st.markdown("Vamos fazer uma regressão logística para prever a probabilidade de óbito com base na taxa de ocupação, tipo de unidade e idade do paciente.")
-
-
 
 # In[13]:
 
@@ -699,15 +729,15 @@ y_pred = logistic_regressor.predict(x_test)
 y_pred_proba = logistic_regressor.predict_proba(x_test)
 
 # Avaliando o modelo
-st.header("Avaliação do Modelo")
+st.subheader("Avaliação do Modelo")
 
-st.subheader("Distribuição dos Valores Reais")
+st.markdown("**Distribuição dos Valores Reais**")
 st.write(y_outcome.value_counts())
 
-st.subheader("Matriz de Confusão")
+st.markdown("**Matriz de Confusão**")
 st.write(confusion_matrix(y_test, y_pred))
 
-st.subheader("Relatório de Classificação")
+st.markdown("**Relatório de Classificação**")
 report = classification_report(y_test, y_pred, output_dict=True)
 st.dataframe(pd.DataFrame(report).transpose())
 
@@ -717,12 +747,12 @@ coef_df = pd.DataFrame({
     'Coeficiente': logistic_regressor.coef_[0].round(3)
 }).sort_values(by='Coeficiente', ascending=False)
 
-st.subheader("Coeficientes do Modelo")
-st.write(f"Intercept: {logistic_regressor.intercept_[0].round(3)}")
+st.markdown("**Coeficientes do Modelo**")
+st.write(f"Intercept: `{logistic_regressor.intercept_[0].round(3)}`")
 st.dataframe(coef_df)
 
 # Com 'MUNICIPIO' como variável preditora.
-st.subheader("Regressão Logística com Município")
+st.subheader("Com 'MUNICIPIO' como variável preditora.")
 
 # In[14]:
 
@@ -754,16 +784,16 @@ y_pred = logistic_regressor.predict(x_test)
 y_pred_proba = logistic_regressor.predict_proba(x_test)
 
 # Avaliando o modelo
-st.header("Avaliação do Modelo")
+st.subheader("Avaliação do Modelo")
 
-st.subheader("Distribuição dos Valores Reais")
+st.markdown("**Distribuição dos Valores Reais**")
 st.write(y_outcome.value_counts())
 
-st.subheader("Matriz de Confusão")
+st.markdown("**Matriz de Confusão**")
 cm = confusion_matrix(y_test, y_pred)
 st.write(cm)
 
-st.subheader("Relatório de Classificação")
+st.markdown("**Relatório de Classificação**")
 report_dict = classification_report(y_test, y_pred, output_dict=True)
 report_df = pd.DataFrame(report_dict).transpose()
 st.dataframe(report_df)
@@ -777,8 +807,8 @@ coef_df = pd.DataFrame({
     'Coeficiente': logistic_regressor.coef_[0].round(3)
 }).sort_values(by='Coeficiente', ascending=False)
 
-st.subheader("Coeficientes do Modelo")
-st.write(f"Intercept: {logistic_regressor.intercept_[0].round(3)}")
+st.markdown("**Coeficientes do Modelo**")
+st.write(f"Intercept: `{logistic_regressor.intercept_[0].round(3)}`")
 st.dataframe(coef_df)
 
 st.divider()
@@ -790,9 +820,15 @@ st.markdown("""
 - Os municípios que se destacaram nas análises são de regiões metropolitanas ou arredores, dos quais muitas outras cidades dependem de seus serviços.
 - No geral, poucos hospitais do Estado enfrentaram uma superlotação, sendo esses da categoria hospital especializado e geral localizados nos grandes centros urbanos.
 """)
-st.info("""
-Obrigado por acompanhar esta análise!  
-Este trabalho foi desenvolvido com fins acadêmicos e de estudo, com o objetivo de explorar dados e gerar insights sobre a ocupação hospitalar no estado da Paraíba.  
+st.divider()
 
-Entre em contato: [maria.paiva@dcx.ufpb.br](mailto:maria.paiva@dcx.ufpb.br)
+st.info("""
+Obrigada por acompanhar esta análise!  
+Este trabalho foi desenvolvido com fins acadêmicos e de estudo, com o objetivo de explorar dados públicos e gerar insights sobre a ocupação hospitalar no estado da Paraíba.  
 """)
+
+st.markdown("""
+            Para mais informações ou sugestões, entre em contato: 
+            - 📩 [Email](mailto:maria.paiva@dcx.ufpb.br)
+            - 💼 [LinkedIn](https://www.linkedin.com/in/ceciliapaiva/)
+            """)
