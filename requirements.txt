@@ -5,4 +5,3 @@ pandas==2.2.3
 scikit-learn==1.6.1
 seaborn==0.13.2
 streamlit==1.45.1
-gdown==5.2.0

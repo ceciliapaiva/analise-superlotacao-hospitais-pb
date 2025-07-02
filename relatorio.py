@@ -65,7 +65,8 @@ hospital_e_leitos_pb['TIPO_GESTAO'] = hospital_e_leitos_pb['TIPO_GESTAO'].replac
 url_sih_pb_2024 = f"https://www.dropbox.com/scl/fi/6pbph1llgydgsbhwi054x/dados_sih_pb_2024.csv?rlkey=ke7suvsvakniipj0hszb85xyk&st=qgipi74x&dl=1"
 
 # Baixando o arquivo CSV
-sih_pb_2024 = pd.read_csv(url_sih_pb_2024)
+with st.spinner('Carregando dados do SIH/SUS...'):
+    sih_pb_2024 = pd.read_csv(url_sih_pb_2024)
 
 # Limpeza de dados
 sih_pb_2024 = sih_pb_2024.drop(['UF_ZI', 'CGC_HOSP', 'N_AIH', 'IDENT', 'CEP', 'MUNIC_RES', 'NASC', 'SEXO',
@@ -628,10 +629,9 @@ st.pyplot(fig16)
 # Avaliando o modelo
 RMSE = np.sqrt(mean_squared_error(y, fitted))
 r2 = r2_score(y, fitted)
-st.markdown(f'''### Avaliando o Modelo
+st.markdown(f'''### Avaliação do Modelo
             - Root Mean Square Error (RMSE): `{RMSE:.2f}`
             - Coefficiente of determination (r2): `{r2:.4f}`
-            (Poder explicativo moderado)
 ''')
 
 st.header("Regressão Linear Múltipla")
@@ -667,10 +667,9 @@ y_pred = regressor_multiple.predict(x_test)
 fitted = regressor_multiple.predict(x_dummies)
 RMSE = np.sqrt(mean_squared_error(y, fitted))
 r2 = r2_score(y, fitted)
-st.markdown(f'''### Avaliando o Modelo
+st.markdown(f'''### Avaliação do Modelo
             - Root Mean Square Error (RMSE): `{RMSE:.2f}`
-            - Coefficiente of determination (r2): `{r2:.4f}``
-
+            - Coefficiente of determination (r2): `{r2:.4f}`
             ''')
 
 # Calcular os resíduos
