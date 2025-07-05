@@ -25,6 +25,19 @@ st.markdown('''
 ''')
 st.divider()
 
+st.header("Indicadores")
+st.subheader("Taxa de Ocupação dos Leitos SUS")
+st.markdown('''
+            Este indicador representa a eficiencia dos hospitais com leitos SUS.
+            > `Taxa de Ocupação = (Leitos Ocupados / Total de Leitos SUS) * 100`
+''')
+st.subheader("Média de Ocupação Diária")
+st.markdown('''
+            Este indicador representa a demanda dos hospitais com leitos SUS.
+            > `Média de Ocupação = Média de Entradas Diárias * Média dos Dias de Permanência`
+''')
+st.divider()
+
 # In[1]:
 
 # ### Hospital e Leito
@@ -65,7 +78,7 @@ hospital_e_leitos_pb['TIPO_GESTAO'] = hospital_e_leitos_pb['TIPO_GESTAO'].replac
 url_sih_pb_2024 = f"https://www.dropbox.com/scl/fi/6pbph1llgydgsbhwi054x/dados_sih_pb_2024.csv?rlkey=ke7suvsvakniipj0hszb85xyk&st=qgipi74x&dl=1"
 
 # Baixando o arquivo CSV
-with st.spinner('Carregando dados do SIH/SUS...'):
+with st.spinner('Carregando os dados...'):
     sih_pb_2024 = pd.read_csv(url_sih_pb_2024)
 
 # Limpeza de dados
@@ -99,20 +112,6 @@ sih_pb_2024 = sih_pb_2024.rename(columns={
 })
 
 sih_pb_2024 = sih_pb_2024[sih_pb_2024['MES_CMPT'] <= 11]
-
-
-st.header("Indicadores")
-st.subheader("Taxa de Ocupação dos Leitos SUS")
-st.markdown('''
-            Este indicador representa a eficiencia dos hospitais com leitos SUS.
-            > `Taxa de Ocupação = (Leitos Ocupados / Total de Leitos SUS) * 100`
-''')
-st.subheader("Média de Ocupação Diária")
-st.markdown('''
-            Este indicador representa a demanda dos hospitais com leitos SUS.
-            > `Média de Ocupação = Média de Entradas Diárias * Média dos Dias de Permanência`
-''')
-st.divider()
 
 # In[3]:
 
@@ -173,6 +172,7 @@ ax1.legend(loc='upper left', bbox_to_anchor=(1, 1))
 
 st.subheader("Taxa de Ocupação dos Leitos SUS na Paraíba")
 st.pyplot(fig1)
+plt.close(fig1)
 
 # ==================================================================================
 fig2, ax2 = plt.subplots(figsize=(10, 6))
@@ -193,6 +193,7 @@ ax2.legend(loc='upper left', bbox_to_anchor=(1, 1))
 
 st.subheader("Leitos SUS na Paraíba")
 st.pyplot(fig2)
+plt.close(fig2)
 
 # ==================================================================================
 fig3, ax3 = plt.subplots(figsize=(10, 6))
@@ -213,6 +214,7 @@ ax3.legend(loc='upper left', bbox_to_anchor=(1, 1))
 
 st.subheader("Taxa de Óbitos na Paraíba")
 st.pyplot(fig3)
+plt.close(fig3)
 st.divider()
 
 
@@ -267,6 +269,7 @@ ax4.grid(True)
 
 st.subheader("Distribuição da Média de Ocupação Diária na Paraíba")
 st.pyplot(fig4)
+plt.close(fig4)
 
 # ### Média de Ocupação Hospitalar
 # Vamos entender a demanda dos hospitais localizados no Estado da Paraíba.
@@ -290,6 +293,7 @@ ax5.legend(loc='upper left', bbox_to_anchor=(1, 1))
 
 st.subheader("Distribuição da Ocupação Diária por Tipo de Unidade")
 st.pyplot(fig5)
+plt.close(fig5)
 
 # ==================================================================================
 
@@ -309,6 +313,7 @@ ax6.set_xlabel('Tipo de Unidade')
 
 st.subheader("Distribuição de Unidades com Leitos SUS na Paraíba")
 st.pyplot(fig6)
+plt.close(fig6)
 
 
 # In[6]:
@@ -330,6 +335,7 @@ ax7.legend(loc='upper left', bbox_to_anchor=(1, 1))
 
 st.subheader("Relação entre Ocupação Diária e Tipos de Unidade")
 st.pyplot(fig7)
+plt.close(fig7)
 
 # ==================================================================================
 
@@ -352,6 +358,7 @@ ax8.legend(loc='upper left', bbox_to_anchor=(1, 1))
 
 st.subheader("Cidades com os Hospitais Mais Ocupados da Paraíba")
 st.pyplot(fig8)
+plt.close(fig8)
 
 # ==================================================================================
 
@@ -362,7 +369,7 @@ def medidas_centralidade(df, coluna):
     moda = df[coluna].mode()[0]
 
     st.subheader(f"Medidas de Centralidade - Coluna: {coluna}")
-    st.markdown(f"**Média:** {media:.2f}  \n**Mediana:** {mediana:.2f}  \n**Moda:** {moda:.2f}")
+    st.markdown(f"**Média:** `{media:.2f}`  \n**Mediana:** `{mediana:.2f}`  \n**Moda:** `{moda:.2f}`")
 
 medidas_centralidade(df_stats, 'ocupacao_media_diaria')
 
@@ -380,20 +387,20 @@ def medidas_variabilidade(df, coluna):
 
     st.subheader(f"Medidas de Variabilidade — Coluna: {coluna}")
     st.markdown(f"""
-    **IQR:** {IQR:.2f}  
-    **Limite Inferior:** {lim_inferior:.2f}  
-    **Limite Superior:** {lim_superior:.2f}
+    **IQR:** `{IQR:.2f}`  
+    **Limite Inferior:** `{lim_inferior:.2f}`  
+    **Limite Superior:** `{lim_superior:.2f}`
     """)
 
     st.subheader("Outliers:")
-    st.table(outliers[['municipio', coluna, 'tipo_unidade']])
+    st.dataframe(outliers[['municipio', coluna, 'tipo_unidade']], use_container_width=True)
 
     st.subheader("📋 Resumo Estatístico:")
-    st.table(df[coluna].describe().round(2))
+    st.dataframe(df[coluna].describe().round(2), use_container_width=True)
 
 medidas_variabilidade(df_stats, 'ocupacao_media_diaria')
 st.subheader("Top 6 Hospitais Mais Ocupados")
-st.table(top_6_hospitais[['nome_hospital', 'municipio', 'ocupacao_media_diaria']].sort_values(by='ocupacao_media_diaria', ascending=False))
+st.dataframe(top_6_hospitais[['nome_hospital', 'municipio', 'ocupacao_media_diaria']].sort_values(by='ocupacao_media_diaria', ascending=False), use_container_width=True)
 
 st.subheader("Conclusões preliminares")
 st.markdown('No contexto do estado da Paraíba, as maiores médias de ocupação diária se encontra em unidades do tipo: hospital geral e hospital especializado (Hospitais que possuem leitos do SUS). Sendo os hospitais especializados os mais afetados, porém, são os que tem menos distribuição no Estado. Foi encontrado 6 dados extremos, provenientes de hospitais localizados em regiões metropolitanas da Paraíba, e esses outliers são os top 6 hospitais com as maiores médias de ocupação diária em 2024.')
@@ -455,9 +462,9 @@ ax9.legend(
     loc='upper left',
     borderaxespad=0.)
 st.pyplot(fig9)
+plt.close(fig9)
 
-st.table(cids_freq_hospitais)
-
+st.dataframe(cids_freq_hospitais, use_container_width=True)
 
 st.subheader("Conclusões Preliminares")
 st.markdown('Cada hospital tem suas especialidades de referência e diferentes tipos de leitos disponibilizados.')
@@ -477,12 +484,13 @@ ax11.set_title('Distribuição da Taxa de Ocupação Média dos Leitos SUS')
 ax11.set_xlabel('Taxa de Ocupação Média (%)')
 st.subheader("Distribuição da Taxa de Ocupação Média dos Leitos SUS na Paraíba")
 st.pyplot(fig11)
+plt.close(fig11)
 medidas_centralidade(df_stats, 'taxa_ocupacao_mean_pct')
 medidas_variabilidade(df_stats, 'taxa_ocupacao_mean_pct')
 
 st.subheader('Top 10 Hospitais Mais Lotados')
 top_10_lotados = df_stats.nlargest(10, 'taxa_ocupacao_mean_pct').sort_values(by='taxa_ocupacao_mean_pct', ascending=False)
-st.table(top_10_lotados)
+st.dataframe(top_10_lotados, use_container_width=True)
 
 st.subheader("Conclusões Preliminares")
 st.markdown('No geral, a taxa de ocupação é equilibrada, porém, com uma exceção para um hospital especializado que atingiu a média máxima da taxa de ocupação.')
@@ -504,6 +512,7 @@ ax12.set_xlabel('Taxa de Ocupação Média (%)')
 ax12.set_ylabel('Média de Leitos SUS')
 ax12.legend(loc='upper left', bbox_to_anchor=(1, 1))
 st.pyplot(fig12)
+plt.close(fig12)
 
 corr_pearson = df_stats['leitos_sus_mean'].corr(df_stats['taxa_ocupacao_mean_pct'], method='pearson')
 corr_spearman = df_stats['leitos_sus_mean'].corr(df_stats['taxa_ocupacao_mean_pct'], method='spearman')
@@ -535,6 +544,7 @@ ax13.set_ylabel('Média de Óbitos (%)')
 ax13.set_xlabel('Taxa de Ocupação (%)')
 ax13.legend(loc='upper left', bbox_to_anchor=(1, 1))
 st.pyplot(fig13)
+plt.close(fig13)
 
 # Pode ter uma relacao mais forte com tipos de unidades
 corr_pearson = df_stats['obitos_mean'].corr(df_stats['taxa_ocupacao_mean_pct'], method='pearson')
@@ -596,6 +606,7 @@ ax14.set_title('Dados de Treinamento')
 ax14.set_xlabel('Média de Leitos SUS')
 ax14.set_ylabel('Taxa de Ocupação Média (%)')
 st.pyplot(fig14)
+plt.close(fig14)
 
 # Vizualizar o teste
 fig15, ax15 = plt.subplots(figsize=(10, 6))
@@ -605,6 +616,7 @@ ax15.set_title('Dados de teste')
 ax15.set_xlabel('Média de Leitos SUS')
 ax15.set_ylabel('Taxa de Ocupação Média (%)')
 st.pyplot(fig15)
+plt.close(fig15)
 
 # Valor especificado
 valor_especificado = pd.DataFrame({'leitos_sus_mean': [260]}) 
@@ -625,11 +637,14 @@ ax16.set_title('Resíduos do Modelo')
 ax16.set_xlabel('Média de Leitos SUS')
 ax16.set_ylabel('Resíduos')
 st.pyplot(fig16)
+plt.close(fig16)
 
 # Avaliando o modelo
 RMSE = np.sqrt(mean_squared_error(y, fitted))
 r2 = r2_score(y, fitted)
-st.markdown(f'''### Avaliação do Modelo
+st.markdown(f'''
+            ### Avaliação do Modelo
+
             - Root Mean Square Error (RMSE): `{RMSE:.2f}`
             - Coefficiente of determination (r2): `{r2:.4f}`
 ''')
@@ -667,7 +682,9 @@ y_pred = regressor_multiple.predict(x_test)
 fitted = regressor_multiple.predict(x_dummies)
 RMSE = np.sqrt(mean_squared_error(y, fitted))
 r2 = r2_score(y, fitted)
-st.markdown(f'''### Avaliação do Modelo
+st.markdown(f'''
+            ### Avaliação do Modelo
+
             - Root Mean Square Error (RMSE): `{RMSE:.2f}`
             - Coefficiente of determination (r2): `{r2:.4f}`
             ''')
@@ -683,6 +700,7 @@ ax17.set_title('Resíduos vs Valores Ajustados')
 ax17.set_xlabel('Valores Ajustados (Fitted)')
 ax17.set_ylabel('Resíduos')
 st.pyplot(fig17)
+plt.close(fig17)
 
 # ### Regressão Logística
 # Sem 'MUNICIPIO' como variável preditora.
@@ -738,7 +756,7 @@ st.write(confusion_matrix(y_test, y_pred))
 
 st.markdown("**Relatório de Classificação**")
 report = classification_report(y_test, y_pred, output_dict=True)
-st.dataframe(pd.DataFrame(report).transpose())
+st.dataframe(pd.DataFrame(report).transpose(), use_container_width=True)
 
 # Coeficientes
 coef_df = pd.DataFrame({
@@ -748,7 +766,7 @@ coef_df = pd.DataFrame({
 
 st.markdown("**Coeficientes do Modelo**")
 st.write(f"Intercept: `{logistic_regressor.intercept_[0].round(3)}`")
-st.dataframe(coef_df)
+st.dataframe(coef_df, use_container_width=True)
 
 # Com 'MUNICIPIO' como variável preditora.
 st.subheader("Com 'MUNICIPIO' como variável preditora.")
@@ -795,7 +813,7 @@ st.write(cm)
 st.markdown("**Relatório de Classificação**")
 report_dict = classification_report(y_test, y_pred, output_dict=True)
 report_df = pd.DataFrame(report_dict).transpose()
-st.dataframe(report_df)
+st.dataframe(report_df, use_container_width=True)
 
 
 # In[15]:
@@ -808,7 +826,7 @@ coef_df = pd.DataFrame({
 
 st.markdown("**Coeficientes do Modelo**")
 st.write(f"Intercept: `{logistic_regressor.intercept_[0].round(3)}`")
-st.dataframe(coef_df)
+st.dataframe(coef_df, use_container_width=True)
 
 st.divider()
 st.header("Conclusões")
@@ -823,7 +841,7 @@ st.divider()
 
 st.info("""
 Obrigada por acompanhar esta análise!  
-Este trabalho foi desenvolvido com fins acadêmicos e de estudo, com o objetivo de explorar dados públicos e gerar insights sobre a ocupação hospitalar no estado da Paraíba.  
+Este trabalho foi desenvolvido para fins de estudo e prática, com o objetivo de explorar dados públicos e gerar insights sobre a ocupação hospitalar no estado da Paraíba.  
 """)
 
 st.markdown("""
