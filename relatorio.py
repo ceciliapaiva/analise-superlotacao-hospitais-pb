@@ -72,6 +72,8 @@ hospital_e_leitos_pb['TIPO_GESTAO'] = hospital_e_leitos_pb['TIPO_GESTAO'].replac
 
 # In[2]:
 
+import streamlit as st
+import pandas as pd 
 
 # Dicionário de Variáveis (https://pcdas.icict.fiocruz.br/conjunto-de-dados/sistema-de-informacoes-hospitalares-do-sus-sihsus/dicionario-de-variaveis/)
 
@@ -79,7 +81,7 @@ url_sih_pb_2024 = f"https://www.dropbox.com/scl/fi/6pbph1llgydgsbhwi054x/dados_s
 
 # Baixando o arquivo CSV
 with st.spinner('Carregando os dados...'):
-    sih_pb_2024 = pd.read_csv(url_sih_pb_2024)
+    sih_pb_2024 = pd.read_csv(url_sih_pb_2024, low_memory=False)
 
 # Limpeza de dados
 sih_pb_2024 = sih_pb_2024.drop(['UF_ZI', 'CGC_HOSP', 'N_AIH', 'IDENT', 'CEP', 'MUNIC_RES', 'NASC', 'SEXO',
